@@ -18,12 +18,6 @@ public class MemberManager {
 		this.members = new HashMap<>();
 	}
 
-	/**
-	 * 新しい会員を追加する
-	 * 
-	 * @param member 追加する会員オブジェクト
-	 * @throws IllegalArgumentException 既に同じIDの会員が存在する場合
-	 */
 	public void addMember(Member member) {
 		if (members.containsKey(member.getMemberId())) {
 			throw new IllegalArgumentException("この会員IDは既に使用されています: " + member.getMemberId());
@@ -31,29 +25,10 @@ public class MemberManager {
 		members.put(member.getMemberId(), member);
 	}
 
-	/**
-	 * 会員IDから会員を検索する
-	 * 
-	 * @param memberId 検索する会員ID
-	 * @return 該当する会員。存在しない場合はnull
-	 */
 	public Optional<Member> findById(String memberId) {
 		return Optional.ofNullable(members.get(memberId));
 	}
 
-	/**
-	 * 会員を削除する
-	 * 
-	 * @param memberId 削除する会員のID
-	 * @throws IllegalStateException 貸出中の本がある場合
-	 */
-
-
-	/**
-	 * 登録されている全会員数を返す
-	 * 
-	 * @return 会員数
-	 */
 	public int getTotalMemberCount() {
 		return members.size();
 	}

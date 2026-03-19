@@ -2,10 +2,6 @@ package com.example;
 
 import java.time.LocalDate;
 
-/**
- * 図書館の書籍を管理するクラス ISBN、タイトル、著者、貸出状況などの情報を保持する
- */
-
 public class Book {
 	// 書籍を一意に識別するISBNコード
 	private String isbn;
@@ -19,14 +15,6 @@ public class Book {
 	private String borrowedBy;
 	// 返却期限日
 	private LocalDate dueDate;
-
-	/**
-	 * 書籍の新規作成を行うコンストラクタ
-	 * 
-	 * @param isbn   ISBN番号
-	 * @param title  書籍タイトル
-	 * @param author 著者名
-	 */
 
 	public Book(String isbn, String title, String author) {
 		this.isbn = isbn;
@@ -60,14 +48,6 @@ public class Book {
 		return dueDate;
 	}
 
-	/**
-	 * 書籍の貸出処理を行う
-	 * 
-	 * @param memberId   貸出を行う会員のID
-	 * @param borrowDays 貸出日数
-	 * @throws IllegalStateException 既に貸出中の場合
-	 */
-
 	public void borrowBook(String memberId, int borrowDays) {
 		if (!isAvailable) {
 			throw new IllegalStateException("この本は既に貸し出されています");
@@ -76,10 +56,6 @@ public class Book {
 		this.borrowedBy = memberId;
 		this.dueDate = LocalDate.now().plusDays(borrowDays);
 	}
-
-	/**
-	 * 書籍の返却処理を行う
-	 */
 
 	public void returnBook() {
 		this.isAvailable = true;

@@ -17,13 +17,6 @@ public class Member {
 	// 貸出中の書籍のISBNリスト
 	private List<String> borrowedBooks;
 
-	/**
-	 * 会員の新規作成を行うコンストラクタ
-	 * 
-	 * @param memberId 会員ID
-	 * @param name     会員名
-	 * @param email    メールアドレス
-	 */
 	public Member(String memberId, String name, String email) {
 		this.memberId = memberId;
 		this.name = name;
@@ -48,30 +41,13 @@ public class Member {
 		return new ArrayList<>(borrowedBooks);
 	}
 
-	/**
-	 * 書籍を借りた際の処理
-	 * 
-	 * @param isbn 借りる書籍のISBN
-	 */
 	public void borrowBook(String isbn) {
 		borrowedBooks.add(isbn);
 	}
 
-	/**
-	 * 書籍を返却した際の処理
-	 * 
-	 * @param isbn 返却する書籍のISBN
-	 */
-
 	public void returnBook(String isbn) {
 		borrowedBooks.remove(isbn);
 	}
-
-	/**
-	 * 現在借りている本の冊数を返す
-	 * 
-	 * @return 貸出中の書籍数
-	 */
 
 	public int getBorrowedCount() {
 		return borrowedBooks.size();
