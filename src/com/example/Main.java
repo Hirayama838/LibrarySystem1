@@ -4,7 +4,6 @@ public class Main {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-
 		BookRepository bookRepository = new BookManager();
 		MemberManager memberManager = new MemberManager();
 
@@ -22,6 +21,13 @@ public class Main {
 
 		// 貸出
 		service.borrowBook("m001", "001");
+		
+		//　貸出2回目(例外)
+		try {
+		    service.borrowBook("m001", "001");
+		} catch (BookNotAvailableException e) {
+		    System.out.println("OK: " + e.getMessage());
+		}
 
 		// 確認
 		System.out.println(book1.isAvailable()); // false
@@ -30,6 +36,17 @@ public class Main {
 		service.returnBook("m001", "001");
 
 		System.out.println(book1.isAvailable()); // true
-	}
 
+		try {
+			service.borrowBook("m001", "001");
+			System.out.println("貸出完了");
+		} catch (BookNotFoundException e) {
+			System.out.println(e.getMessage());
+		} catch (MemberNotFoundException e) {
+			System.out.println(e.getMessage());
+		} catch (BookNotAvailableException e) {
+			System.out.println(e.getMessage());
+		}
+
+	}
 }

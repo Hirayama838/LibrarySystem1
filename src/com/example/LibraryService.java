@@ -20,18 +20,16 @@ public class LibraryService {
 	}
 
 	public void borrowBook(String memberId, String isbn) {
-		// 会員と書籍の存在確認
-		Member member = memberManager.findById(memberId).orElseThrow(() -> new IllegalArgumentException("会員が見つかりません"));
 
-		Book book = bookRepository.findByIsbn(isbn).orElseThrow(() -> new IllegalArgumentException("本が見つかりません"));
+		// 本の存在チェック
+		Book book = bookRepository.findByIsbn(isbn).orElseThrow(() -> new BookNotFoundException(isbn));
 
-		if (member.getBorrowedCount() >= 5) {
-			throw new IllegalStateException("貸出上限に達しています");
-		}
+		// ユーザーの存在チェック
+		Member member = memberManager.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
 
 		// 貸出可能かの確認
 		if (!book.isAvailable()) {
-			throw new IllegalStateException("この本は現在貸出できません");
+			throw new BookNotAvailableException(isbn);
 		}
 
 		// 貸出処理の実行
@@ -41,13 +39,17 @@ public class LibraryService {
 
 	public void returnBook(String memberId, String isbn) {
 		// 会員と書籍の存在確認
-		Member member = memberManager.findById(memberId).orElseThrow(() -> new IllegalArgumentException("会員が見つかりません"));
+		Member member = memberManager.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
 
-		Book book = bookRepository.findByIsbn(isbn).orElseThrow(() -> new IllegalArgumentException("本が見つかりません"));
+		Book book = bookRepository.findByIsbn(isbn).orElseThrow(() -> new BookNotFoundException(isbn));
 
 		// 返却権限の確認
 		if (!memberId.equals(book.getBorrowedBy())) {
-			throw new IllegalStateException("この本は別の会員が借りています");
+			throw new BookNotAvailableException("この本は別の会員が借りています: " + isbn);
+		}
+		
+		if (!memberId.equals(book.getBorrowedBy())) {
+		    throw new UnauthorizedReturnException(memberId, isbn);
 		}
 
 		// 返却処理の実行
@@ -58,21 +60,16 @@ public class LibraryService {
 	public List<Book> searchBooks(String keyword) {
 		return bookRepository.search(keyword);
 	}
-	
-	public List<Book> getAvailableBooks() {
-	    return bookRepository.findAll().stream()
-	            .filter(Book::isAvailable)
-	            .toList();
-	}
-	
-	public List<Book> findOverdueBooks() {
-	    LocalDate today = LocalDate.now();
 
-	    return bookRepository.findAll().stream()
-	            .filter(book -> !book.isAvailable())
-	            .filter(book -> book.getDueDate() != null)
-	            .filter(book -> book.getDueDate().isBefore(today))
-	            .toList();
+	public List<Book> getAvailableBooks() {
+		return bookRepository.findAll().stream().filter(Book::isAvailable).toList();
+	}
+
+	public List<Book> findOverdueBooks() {
+		LocalDate today = LocalDate.now();
+
+		return bookRepository.findAll().stream().filter(book -> !book.isAvailable())
+				.filter(book -> book.getDueDate() != null).filter(book -> book.getDueDate().isBefore(today)).toList();
 	}
 
 }
