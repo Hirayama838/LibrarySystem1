@@ -47,12 +47,6 @@ public class BookManager implements BookRepository {
 
 	@Override
 	public void remove(String isbn) {
-		Book book = findByIsbn(isbn).orElseThrow(() -> new IllegalArgumentException("本が見つかりません"));
-
-		if (!book.isAvailable()) {
-			throw new IllegalStateException("貸出中の本は削除できません");
-		}
-
 		books.remove(isbn);
 
 	}

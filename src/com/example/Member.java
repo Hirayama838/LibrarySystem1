@@ -16,6 +16,8 @@ public class Member {
 	private String email;
 	// 貸出中の書籍のISBNリスト
 	private List<String> borrowedBooks;
+	
+	private static final int MAX_BORROW_LIMIT = 5;
 
 	public Member(String memberId, String name, String email) {
 		this.memberId = memberId;
@@ -42,11 +44,22 @@ public class Member {
 	}
 
 	public void borrowBook(String isbn) {
+		if (borrowedBooks.size() >= MAX_BORROW_LIMIT) {
+			throw new LibraryException("貸出上限（5冊）を超えています");
+		}
+		if (borrowedBooks.contains(isbn)) {
+			throw new LibraryException("既に借りています: " + isbn);
+		}
+		
 		borrowedBooks.add(isbn);
 	}
 
 	public void returnBook(String isbn) {
-		borrowedBooks.remove(isbn);
+	    if (!borrowedBooks.contains(isbn)) {
+	        throw new LibraryException("この本は借りていません: " + isbn);
+	    }
+
+	    borrowedBooks.remove(isbn);
 	}
 
 	public int getBorrowedCount() {

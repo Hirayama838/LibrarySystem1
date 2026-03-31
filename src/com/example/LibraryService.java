@@ -10,13 +10,13 @@ public class LibraryService {
 	// 書籍管理用のマネージャー
 	private final BookRepository bookRepository;
 	// 会員管理用のマネージャー
-	private final MemberManager memberManager;
+	private final MemberRepository memberRepository;
 	// 標準の貸出期間（日数）
 	private static final int DEFAULT_BORROW_DAYS = 14;
 
-	public LibraryService(BookRepository bookRepository, MemberManager memberManager) {
+	public LibraryService(BookRepository bookRepository, MemberRepository memberRepository) {
 		this.bookRepository = bookRepository;
-		this.memberManager = memberManager;
+		this.memberRepository = memberRepository;
 	}
 
 	public void borrowBook(String memberId, String isbn) {
@@ -25,31 +25,26 @@ public class LibraryService {
 		Book book = bookRepository.findByIsbn(isbn).orElseThrow(() -> new BookNotFoundException(isbn));
 
 		// ユーザーの存在チェック
-		Member member = memberManager.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
+		Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
 
-		// 貸出可能かの確認
 		if (!book.isAvailable()) {
 			throw new BookNotAvailableException(isbn);
 		}
 
 		// 貸出処理の実行
-		book.borrowBook(memberId, DEFAULT_BORROW_DAYS);
 		member.borrowBook(isbn);
+		book.borrowBook(memberId, DEFAULT_BORROW_DAYS);
 	}
 
 	public void returnBook(String memberId, String isbn) {
 		// 会員と書籍の存在確認
-		Member member = memberManager.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
+		Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
 
 		Book book = bookRepository.findByIsbn(isbn).orElseThrow(() -> new BookNotFoundException(isbn));
 
 		// 返却権限の確認
 		if (!memberId.equals(book.getBorrowedBy())) {
-			throw new BookNotAvailableException("この本は別の会員が借りています: " + isbn);
-		}
-		
-		if (!memberId.equals(book.getBorrowedBy())) {
-		    throw new UnauthorizedReturnException(memberId, isbn);
+			throw new UnauthorizedReturnException(memberId, isbn);
 		}
 
 		// 返却処理の実行
@@ -70,6 +65,16 @@ public class LibraryService {
 
 		return bookRepository.findAll().stream().filter(book -> !book.isAvailable())
 				.filter(book -> book.getDueDate() != null).filter(book -> book.getDueDate().isBefore(today)).toList();
+	}
+
+	public void removeBook(String isbn) {
+		Book book = bookRepository.findByIsbn(isbn).orElseThrow(() -> new BookNotFoundException(isbn));
+
+		if (!book.isAvailable()) {
+			throw new LibraryException("貸出中の本は削除できません: " + isbn);
+		}
+
+		bookRepository.remove(isbn);
 	}
 
 }

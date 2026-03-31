@@ -49,12 +49,12 @@ public class Book {
 	}
 
 	public void borrowBook(String memberId, int borrowDays) {
-		if (!isAvailable) {
-			throw new IllegalStateException("この本は既に貸し出されています");
-		}
-		this.isAvailable = false;
-		this.borrowedBy = memberId;
-		this.dueDate = LocalDate.now().plusDays(borrowDays);
+	    if (!isAvailable) {
+	        throw new BookNotAvailableException(isbn);
+	    }
+	    this.isAvailable = false;
+	    this.borrowedBy = memberId;
+	    this.dueDate = LocalDate.now().plusDays(borrowDays);
 	}
 
 	public void returnBook() {
